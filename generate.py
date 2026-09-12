@@ -115,10 +115,16 @@ def analyze(name, closes, vols, market):
         badge, cls = "急騰", "b-up"
         desc = f"前日比+{today_ret:.1f}%、変動{abs(z):.1f}σ。普段より強く買われています。"
 
+    # 非異常時のデフォルト（相対トップ埋め用の中立バッジ）
+    if badge is None:
+        badge, cls = "注目", "b-calm"
+        desc = f"前日比{today_ret:+.1f}%（Zスコア {z:+.1f}）。本日の中では相対的に動きがありました。"
+
     facts = [["変動", f"{today_ret:+.1f}%（Zスコア {z:+.1f}）"]]
     if vol_ratio is not None:
         facts.append(["出来高", f"平均の{vol_ratio:.1f}倍"])
 
+    # card は常に生成する（異常が少ない日は上位を相対トップで埋めるため）
     return {
         "score": round(score, 3),
         "is_anom": is_anom,
@@ -130,7 +136,7 @@ def analyze(name, closes, vols, market):
             "facts": facts,
             "hist": "",   # 後から: 過去の類似ケース
             "ai": "",     # 後から: AIの見立て
-        } if is_anom else None,
+        },
     }
 
 
@@ -159,8 +165,7 @@ def main():
             r = analyze(name, c, v, market)
             if r:
                 scores.append(r["score"])
-                if r["card"]:
-                    results.append((r["score"], r["card"]))
+                results.append((r["score"], r["is_anom"], r["card"]))
             print(f"OK  {name}")
         except Exception as e:
             print(f"NG  {name}: {e}")
@@ -171,15 +176,17 @@ def main():
             r = analyze(name, c, v, market)
             if r:
                 scores.append(r["score"])
-                if r["card"]:
-                    results.append((r["score"], r["card"]))
+                results.append((r["score"], r["is_anom"], r["card"]))
             print(f"OK  {name}")
         except Exception as e:
             print(f"NG  {name}: {e}")
 
-    # 異常の強い順に並べる
+    # スコアの強い順に並べる（異常は score>=0.5 になるので自然に上位へ）
     results.sort(key=lambda x: x[0], reverse=True)
-    cards = [c for _, c in results]
+    n_anom = sum(1 for s, a, c in results if a)
+    # 異常は全部出す。3件未満の日は、相対的に最も動いた上位で最低3件まで埋める
+    take = max(3, n_anom)
+    cards = [c for s, a, c in results[:take]]
 
     out = {
         "updated": datetime.datetime.now().strftime("%Y/%m/%d %H:%M"),
