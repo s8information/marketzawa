@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ヘルプ — marketzawa</title>
+<style>
+  :root{
+    --ink:#0B111C; --panel:#161F30; --panel2:#1F2B41;
+    --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.15);
+    --tx:#E8ECF3; --tx2:#93A2B8; --tx3:#5F6E85; --ai:#5EE7D0; --vol:#FBBF24;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  body{background:var(--ink); color:var(--tx);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Noto Sans JP",sans-serif;
+    line-height:1.75; -webkit-font-smoothing:antialiased; padding:0 16px 56px}
+  .wrap{max-width:440px; margin:0 auto}
+  a{color:var(--ai); text-decoration:none}
+
+  header{display:flex; align-items:center; justify-content:space-between; padding:20px 2px 8px}
+  .logo{font-size:18px; font-weight:700; letter-spacing:-.02em}
+  .logo b{color:var(--vol)}
+  .back{font-size:12px; color:var(--tx3)}
+  h1{font-size:22px; font-weight:700; margin:18px 2px 6px}
+  .lead{font-size:13px; color:var(--tx2); margin:0 2px 20px}
+
+  section{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:15px 17px; margin-bottom:12px}
+  h2{font-size:15px; font-weight:700; margin-bottom:8px}
+  h2 .em{color:var(--vol)}
+  p{font-size:13px; color:var(--tx2); margin-bottom:8px}
+  p:last-child{margin-bottom:0}
+  b{color:var(--tx); font-weight:600}
+  ul{list-style:none; margin:6px 0 0}
+  li{font-size:13px; color:var(--tx2); padding:5px 0 5px 16px; position:relative}
+  li::before{content:''; position:absolute; left:2px; top:12px; width:5px; height:5px; border-radius:99px; background:var(--ai)}
+  li b{color:var(--tx)}
+  .q{font-size:14px; font-weight:600; color:var(--tx); margin-bottom:4px}
+  .terms{font-size:11.5px; color:var(--tx3); line-height:1.85}
+  .terms b{color:var(--tx2)}
+  footer{font-size:11px; color:var(--tx3); text-align:center; margin-top:22px; line-height:1.9}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">market<b>zawa</b></div>
+    <a class="back" href="marketzawa-prototype.html">← 戻る</a>
+  </header>
+
+  <h1>ヘルプ・よくある質問</h1>
+  <p class="lead">marketzawa（今日のざわつき）の使い方と、料金・解約・免責についてまとめています。</p>
+
+  <section>
+    <h2>marketzawa とは</h2>
+    <p><b>「相場の、AI朝刊」</b>です。株・為替・金・暗号資産をまたいで、AIが毎朝“いつもと違う動き”＝<b>市場のざわつき</b>だけを拾い出してお届けします。</p>
+    <p>大手の情報サイトが「すべてを正確に並べる」のに対し、marketzawa は<b>今、異常な動きをしている対象だけ</b>を抜き出します。全部を追う時間がなくても、相場の“気配”がひと目でわかります。</p>
+  </section>
+
+  <section>
+    <h2>ざわつき<span class="em">指数</span>とは</h2>
+    <p>その朝の市場全体の“荒れ具合”を <b>0〜100</b> で表した数字です。AIが多数の値動きを走査し、複数の異常シグナルを統合したうえで、<b>過去1年の分布と比べて</b>算出しています。</p>
+    <ul>
+      <li><b>30前後</b>＝平常。いつも通りの一日</li>
+      <li><b>50〜70</b>＝ざわつきあり。どこかで何かが起きている</li>
+      <li><b>80以上</b>＝過去1年でも稀な荒れ。要注意</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>「ざわつき」の種類</h2>
+    <p>AIは主に次の切り口で異常を検知します。</p>
+    <ul>
+      <li><b>急騰・急落</b>：普段の値幅より大きく動いた</li>
+      <li><b>出来高異常</b>：取引量がいつもより急に膨らんだ</li>
+      <li><b>連動崩れ</b>：いつも一緒に動くものが逆になった</li>
+      <li><b>静けさ異常</b>：不自然に動かなすぎる（大きな動きの前兆）</li>
+      <li><b>節目ブレイク</b>：年初来高値・安値などを更新した</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>更新はいつ？</h2>
+    <p><b>毎朝6時ごろ</b>に、前営業日までの市場をまとめて更新します。リアルタイムの値動きを追うツールではなく、<b>朝にその日の相場の空気をつかむ</b>ための“朝刊”です。</p>
+    <p>「今朝のざわつき」は、更新時点＝当日朝までの動きを指します。米国市場（日本の夜〜早朝）や24時間動く暗号資産・為替の動きも含みます。</p>
+  </section>
+
+  <section>
+    <h2>無料と有料のちがい</h2>
+    <p><b>無料</b>：その朝のざわつき指数と、主要な異常の“見出し”を見られます。</p>
+    <p><b>有料メンバー（月額980円・初月無料）</b>：すべての異常に加え、各カードの<b>背景データ・過去の類似ケース・AIの見立て（「で、どうする？」）</b>まで読めます。</p>
+    <p>お支払い・メンバー登録は外部の決済ページで行います。登録後にお知らせするパスワードを入力すると、有料部分が解除されます。</p>
+  </section>
+
+  <section>
+    <h2>解約について</h2>
+    <p>有料メンバーシップは<b>いつでも解約できます</b>。解約後は次回の更新日以降、有料部分が非表示になります。違約金や最低利用期間はありません。</p>
+  </section>
+
+  <section id="terms">
+    <h2>免責事項</h2>
+    <div class="terms">
+      <p>1. marketzawa が提供する分析・コメントは <b>AIによって自動生成</b>されたものであり、その正確性・完全性・有用性を保証するものではありません。<b>誤った内容や不正確な情報を含む場合があります。</b></p>
+      <p>2. 本サービスは市場に関する情報提供を目的としたものであり、<b>特定の金融商品の売買その他の取引を推奨・勧誘するものではありません。</b>投資助言・financial advice には該当しません。</p>
+      <p>3. 投資・取引に関する最終的な判断は、<b>利用者ご自身の責任と判断</b>において行ってください。</p>
+      <p>4. 本サービスの情報を利用したことにより生じたいかなる損害についても、<b>運営者は一切の責任を負いません。</b></p>
+      <p>5. 掲載データは第三者の提供する情報を含み、遅延・欠落・誤りが生じる場合があります。</p>
+    </div>
+  </section>
+
+  <section id="contact">
+    <h2>お問い合わせ</h2>
+    <p>ご質問・不具合のご連絡は、以下までお願いします。個別のご返信はお時間をいただく場合があります。</p>
+    <ul>
+      <li>メール：<a href="mailto:【contact@marketzawa.com】">【contact@marketzawa.com】</a></li>
+      <li>お問い合わせフォーム：<a href="【GoogleフォームのURL】">【こちら】</a></li>
+    </ul>
+    <p style="font-size:11px; color:var(--tx3)">※【】内は公開前にご自身の連絡先へ差し替えてください。</p>
+  </section>
+
+  <section id="tokushoho">
+    <h2>特定商取引法に基づく表記</h2>
+    <p>有料メンバーシップのお申し込み・決済は note 上で行われます。事業者名・販売価格・支払方法・解約条件などの表記は、note のメンバーシップページをご確認ください。</p>
+    <p><a href="【noteメンバーシップのURL】">note の特定商取引法に基づく表記を見る →</a></p>
+  </section>
+
+  <section id="privacy">
+    <h2>プライバシーポリシー</h2>
+    <p>本サービスは、サービス改善を目的としてアクセス状況（閲覧ページ・ブラウザ情報など）を統計的に収集する場合があります。これらは個人を特定しない形で扱います。</p>
+    <p>有料メンバーシップに関する決済情報・個人情報は note が管理し、運営者はカード番号等の決済情報を保持しません。</p>
+    <p>収集した情報を、法令に基づく場合を除き第三者へ提供することはありません。</p>
+  </section>
+
+  <section id="tos">
+    <h2>利用規約</h2>
+    <div class="terms">
+      <p>1. 本サービスは、利用者に市場に関する情報を提供するものです。第4項の免責事項に同意のうえご利用ください。</p>
+      <p>2. 掲載内容の著作権は運営者に帰属します。無断転載・再配布・自動収集を禁止します。</p>
+      <p>3. 有料メンバー向けの情報・パスワードを、第三者に共有・公開する行為を禁止します。</p>
+      <p>4. 運営者は、予告なくサービス内容の変更・中断・終了を行うことがあります。</p>
+      <p>5. 本規約は予告なく改定される場合があります。改定後の継続利用をもって同意とみなします。</p>
+    </div>
+  </section>
+
+  <footer>
+    <a href="marketzawa-prototype.html">← トップに戻る</a><br>
+    これはプロトタイプ（ダミーデータ）です。
+  </footer>
+</div>
+</body>
+</html>
