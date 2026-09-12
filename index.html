@@ -98,7 +98,8 @@
     border-radius:11px; font-size:15px; font-weight:700; padding:13px 0; width:100%; max-width:320px; cursor:pointer;
     box-shadow:0 4px 20px rgba(94,231,208,.25)}
   .cta:active{transform:scale(.99)}
-  .member{margin-top:4px; width:100%; max-width:320px}
+  .member{margin-top:10px; padding-top:12px; border-top:1px solid var(--line); width:100%; max-width:320px}
+  .member-label{font-size:12px; color:var(--tx3); margin-bottom:8px}
   .member summary{font-size:12px; color:var(--tx3); cursor:pointer; list-style:none}
   .member summary::-webkit-details-marker{display:none}
   .unlock{display:flex; gap:8px; margin-top:9px}
@@ -202,14 +203,15 @@
       <div class="price"><span class="amt num">¥980</span><span class="per"> / 月</span>
         <div class="free1">初月無料・いつでも解約</div></div>
       <button class="cta">メンバーになって全部見る</button>
-      <details class="member"><summary>すでにメンバーの方 →</summary>
+      <div class="member">
+        <div class="member-label">すでにメンバーの方はこちら</div>
         <div class="unlock">
           <input type="text" id="pw" placeholder="今月のパスワード" aria-label="今月のパスワード">
           <button id="go">解除</button>
         </div>
         <div class="err" id="err"></div>
         <div class="hint">※ デモ用パスワード：<b>zawa</b></div>
-      </details>
+      </div>
     </div>
   </div>
 
@@ -315,7 +317,7 @@
 
 <script>
   /* MARKETZAWA_DATA_START —— generate.py がこの行から END までを毎朝書き換えます */
-  var EMBEDDED_DATA = {"updated": "2026/09/12 17:20", "index": 28, "cards": [{"badge": "注目", "cls": "b-calm", "mkt": "為替", "name": "ユーロ円", "chg": "-1.2%", "chgcls": "down", "desc": "前日比-1.2%（Zスコア -1.9）。本日の中では相対的に動きがありました。", "facts": [["変動", "-1.2%（Zスコア -1.9）"]], "hist": "", "ai": ""}, {"badge": "注目", "cls": "b-calm", "mkt": "株価指数", "name": "S&P500", "chg": "+0.9%", "chgcls": "up", "desc": "前日比+0.9%（Zスコア +1.8）。本日の中では相対的に動きがありました。", "facts": [["変動", "+0.9%（Zスコア +1.8）"], ["出来高", "平均の1.2倍"]], "hist": "", "ai": ""}, {"badge": "注目", "cls": "b-calm", "mkt": "商品", "name": "原油 WTI", "chg": "-2.2%", "chgcls": "down", "desc": "前日比-2.2%（Zスコア -1.4）。本日の中では相対的に動きがありました。", "facts": [["変動", "-2.2%（Zスコア -1.4）"], ["出来高", "平均の1.4倍"]], "hist": "", "ai": ""}]};
+  var EMBEDDED_DATA = null;
   /* MARKETZAWA_DATA_END */
 
   // 静かな日、有料枠に出すサンプル（ぼかして「会員コンテンツがある」ことを示す）
