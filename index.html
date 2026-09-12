@@ -315,8 +315,17 @@
 
 <script>
   /* MARKETZAWA_DATA_START —— generate.py がこの行から END までを毎朝書き換えます */
-  var EMBEDDED_DATA = {"updated": "2026/09/12 16:34", "index": 28, "cards": [{"badge": "注目", "cls": "b-calm", "mkt": "為替", "name": "ユーロ円", "chg": "-1.2%", "chgcls": "down", "desc": "前日比-1.2%（Zスコア -1.9）。本日の中では相対的に動きがありました。", "facts": [["変動", "-1.2%（Zスコア -1.9）"]], "hist": "", "ai": ""}, {"badge": "注目", "cls": "b-calm", "mkt": "株価指数", "name": "S&P500", "chg": "+0.9%", "chgcls": "up", "desc": "前日比+0.9%（Zスコア +1.8）。本日の中では相対的に動きがありました。", "facts": [["変動", "+0.9%（Zスコア +1.8）"], ["出来高", "平均の1.2倍"]], "hist": "", "ai": ""}, {"badge": "注目", "cls": "b-calm", "mkt": "商品", "name": "原油 WTI", "chg": "-2.2%", "chgcls": "down", "desc": "前日比-2.2%（Zスコア -1.4）。本日の中では相対的に動きがありました。", "facts": [["変動", "-2.2%（Zスコア -1.4）"], ["出来高", "平均の1.4倍"]], "hist": "", "ai": ""}]};
+  var EMBEDDED_DATA = null;
   /* MARKETZAWA_DATA_END */
+
+  // 静かな日、有料枠に出すサンプル（ぼかして「会員コンテンツがある」ことを示す）
+  const SAMPLE_LOCKED =
+    '<div class="card" data-sample="1"><div class="card-top"><span class="badge b-dec">連動崩れ</span><span class="mkt">会員限定</span></div>' +
+    '<div class="card-mid"><span class="name">過去の類似ケース</span><span class="chg flat num">—</span></div>' +
+    '<div class="desc">似た形が過去に出た後、相場がどう動いたかを会員向けに表示します。</div></div>' +
+    '<div class="card" data-sample="1"><div class="card-top"><span class="badge b-vol">AIの見立て</span><span class="mkt">会員限定</span></div>' +
+    '<div class="card-mid"><span class="name">で、どうする？</span><span class="chg flat num">—</span></div>' +
+    '<div class="desc">各カードにAIの読み解きが付きます。静かな日でも、注目点を会員向けに解説します。</div></div>';
 
   // 埋め込みデータが無い時に表示するダミー（ローカル閲覧用）
   const FALLBACK = {
@@ -423,15 +432,17 @@
     } else {
       freeEl.innerHTML = free.map(it=>cardHTML(it,'free')).join('');
     }
-    document.getElementById('paid').innerHTML = paid.map(it=>cardHTML(it,'paid')).join('');
-    const locked = document.querySelector('.locked');
-    const divider = document.querySelector('.divider');
-    if(paid.length === 0){
-      if(locked) locked.style.display = 'none';
-      if(divider) divider.style.display = 'none';
+    // ペイウォールは枚数に関係なく常に表示（静かな日もログイン・課金導線を残す）
+    const vt = document.querySelector('.veil-title');
+    if(paid.length > 0){
+      // 4件目以降がある日：それをぼかしプレビュー
+      document.getElementById('paid').innerHTML = paid.map(it=>cardHTML(it,'paid')).join('');
+      if(vt) vt.innerHTML = '🔒 あと<span class="num">' + paid.length + '</span>件＋全カードのAI分析';
+    } else {
+      // 静かな日：サンプルのぼかしカードで「会員コンテンツがある」ことを示す
+      document.getElementById('paid').innerHTML = SAMPLE_LOCKED;
+      if(vt) vt.innerHTML = '🔒 各カードの背景データとAIの見立て';
     }
-    const vn = document.querySelector('.veil-title .num');
-    if(vn) vn.textContent = paid.length;
   }
   var DATA = (EMBEDDED_DATA && EMBEDDED_DATA.index != null) ? EMBEDDED_DATA : FALLBACK;
   render(DATA);
@@ -457,7 +468,9 @@
     if(pw.value.trim().toLowerCase()==='zawa'){
       document.querySelectorAll('.locked-analysis').forEach(e=>e.style.display='flex');
       document.querySelectorAll('.lock-hint').forEach(e=>e.style.display='none');
-      const p=document.getElementById('paid'); p.classList.remove('blurred');
+      const p=document.getElementById('paid');
+      if(p.querySelector('[data-sample]')) p.innerHTML='';  // 静かな日のサンプルは解除後は不要
+      p.classList.remove('blurred');
       p.parentElement.style.maxHeight='none';
       document.getElementById('veil').style.display='none';
     } else { err.textContent='パスワードが違います。'; }
