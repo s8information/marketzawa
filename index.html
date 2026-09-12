@@ -81,11 +81,12 @@
 
   .divider{text-align:center; font-size:11px; color:var(--tx3); margin:16px 0 12px; letter-spacing:.05em}
 
-  .locked{position:relative; border-radius:14px; overflow:hidden; max-height:360px}
+  .locked{position:relative; border-radius:14px; overflow:hidden; max-height:150px}
   .blurred{filter:blur(6px); pointer-events:none; user-select:none}
-  .veil{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
-    gap:9px; padding:22px 18px 0; text-align:center;
-    background:linear-gradient(180deg, rgba(11,17,28,.55) 0%, rgba(11,17,28,.82) 50%, var(--ink) 100%)}
+  .fade{position:absolute; left:0; right:0; bottom:0; height:80px;
+    background:linear-gradient(180deg, rgba(11,17,28,0), var(--ink)); pointer-events:none}
+  .paywall{display:flex; flex-direction:column; align-items:center; gap:10px;
+    text-align:center; padding:18px 18px 22px; margin-top:-8px}
   .veil-title{display:flex; align-items:center; gap:7px; font-size:17px; font-weight:700}
   .val{list-style:none; display:flex; flex-direction:column; gap:6px; margin:2px 0; width:100%; max-width:320px}
   .val li{display:flex; align-items:flex-start; gap:8px; font-size:12.5px; color:var(--tx2); text-align:left; line-height:1.5}
@@ -193,25 +194,26 @@
 
   <div class="locked">
     <div class="blurred" id="paid"></div>
-    <div class="veil" id="veil">
-      <div class="veil-title">🔒 あと<span class="num">9</span>件＋全カードのAI分析</div>
-      <ul class="val">
-        <li><span class="ic">✓</span><span>AIが毎朝、株・為替・金・暗号資産を<b>横断スキャン</b></span></li>
-        <li><span class="ic">✓</span><span>各異常に<b>過去の類似ケース</b>を自動照合</span></li>
-        <li><span class="ic">✓</span><span>「で、どうする？」まで<b>AIが読み解く</b></span></li>
-      </ul>
-      <div class="price"><span class="amt num">¥980</span><span class="per"> / 月</span>
-        <div class="free1">初月無料・いつでも解約</div></div>
-      <button class="cta">メンバーになって全部見る</button>
-      <div class="member">
-        <div class="member-label">すでにメンバーの方はこちら</div>
-        <div class="unlock">
-          <input type="text" id="pw" placeholder="今月のパスワード" aria-label="今月のパスワード">
-          <button id="go">解除</button>
-        </div>
-        <div class="err" id="err"></div>
-        <div class="hint">※ デモ用パスワード：<b>zawa</b></div>
+    <div class="fade"></div>
+  </div>
+  <div class="paywall" id="veil">
+    <div class="veil-title">🔒 あと<span class="num">9</span>件＋全カードのAI分析</div>
+    <ul class="val">
+      <li><span class="ic">✓</span><span>AIが毎朝、株・為替・金・暗号資産を<b>横断スキャン</b></span></li>
+      <li><span class="ic">✓</span><span>各異常に<b>過去の類似ケース</b>を自動照合</span></li>
+      <li><span class="ic">✓</span><span>「で、どうする？」まで<b>AIが読み解く</b></span></li>
+    </ul>
+    <div class="price"><span class="amt num">¥980</span><span class="per"> / 月</span>
+      <div class="free1">初月無料・いつでも解約</div></div>
+    <button class="cta">メンバーになって全部見る</button>
+    <div class="member">
+      <div class="member-label">すでにメンバーの方はこちら</div>
+      <div class="unlock">
+        <input type="text" id="pw" placeholder="今月のパスワード" aria-label="今月のパスワード">
+        <button id="go">解除</button>
       </div>
+      <div class="err" id="err"></div>
+      <div class="hint">※ デモ用パスワード：<b>zawa</b></div>
     </div>
   </div>
 
@@ -303,7 +305,7 @@
   <footer>
     <a href="marketzawa-help.html">ヘルプ</a>　|　<a href="marketzawa-help.html#terms">免責事項</a>　|　<a href="marketzawa-help.html#contact">お問い合わせ</a>　|　<a href="marketzawa-help.html#tokushoho">特商法表記</a><br>
     marketzawa — 市場をまたいで、いつもと違う動きだけ。<br>
-    <span style="color:var(--tx3)">これはプロトタイプ（ダミーデータ）です。</span>
+    <span style="color:var(--tx3)">これは有料ベータ版です。</span>
   </footer>
 </div>
 
@@ -317,7 +319,7 @@
 
 <script>
   /* MARKETZAWA_DATA_START —— generate.py がこの行から END までを毎朝書き換えます */
-  var EMBEDDED_DATA = {"updated": "2026/09/12 17:28", "index": 28, "cards": [{"badge": "注目", "cls": "b-calm", "mkt": "為替", "name": "ユーロ円", "chg": "-1.2%", "chgcls": "down", "desc": "前日比-1.2%（Zスコア -1.9）。本日の中では相対的に動きがありました。", "facts": [["変動", "-1.2%（Zスコア -1.9）"]], "hist": "", "ai": ""}, {"badge": "注目", "cls": "b-calm", "mkt": "株価指数", "name": "S&P500", "chg": "+0.9%", "chgcls": "up", "desc": "前日比+0.9%（Zスコア +1.8）。本日の中では相対的に動きがありました。", "facts": [["変動", "+0.9%（Zスコア +1.8）"], ["出来高", "平均の1.2倍"]], "hist": "", "ai": ""}, {"badge": "注目", "cls": "b-calm", "mkt": "商品", "name": "原油 WTI", "chg": "-2.2%", "chgcls": "down", "desc": "前日比-2.2%（Zスコア -1.4）。本日の中では相対的に動きがありました。", "facts": [["変動", "-2.2%（Zスコア -1.4）"], ["出来高", "平均の1.4倍"]], "hist": "", "ai": ""}]};
+  var EMBEDDED_DATA = null;
   /* MARKETZAWA_DATA_END */
 
   // 静かな日、有料枠に出すサンプル（ぼかして「会員コンテンツがある」ことを示す）
