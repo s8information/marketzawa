@@ -4,27 +4,32 @@
 marketzawa - 日次データ生成スクリプト
 
 毎朝これを実行すると、全市場の実データを取得して異常を検知し、
-サイトが読み込む data.json を書き出します。
+各カードにAIの見立てを付け、有料部分を暗号化して index.html の
+埋め込み枠（MARKETZAWA_DATA）を書き換えます。
 
 必要ライブラリ:
-    pip install yfinance requests
+    pip install yfinance requests anthropic cryptography
+
+環境変数（GitHub Secrets）:
+    ANTHROPIC_API_KEY      … AIの見立て生成用（無ければ ai 欄は空のまま動く）
+    MARKETZAWA_MASTER_KEY  … 月替わりパスワードの種（無ければ暗号化スキップ＝解除無効）
 
 実行:
     python generate.py
 出力:
-    data.json （HTMLと同じフォルダに置く）
-
-AIの見立て（ai欄）は今は空です。後から追加予定。
+    index.html の埋め込み枠を上書き
 """
 
-import json, statistics, datetime, sys
+import json, statistics, datetime, sys, os
 
 try:
     import yfinance as yf
     import requests
 except ImportError:
-    print("先に `pip install yfinance requests` を実行してください")
+    print("先に `pip install yfinance requests anthropic cryptography` を実行してください")
     sys.exit(1)
+
+from marketzawa_ai import fill_ai, monthly_password, encrypt, current_ym
 
 
 # ============================================================
@@ -134,20 +139,17 @@ def analyze(name, closes, vols, market):
             "chgcls": "up" if today_ret >= 0 else "down",
             "desc": desc,
             "facts": facts,
-            "hist": "",   # 後から: 過去の類似ケース
-            "ai": "",     # 後から: AIの見立て
+            "hist": "",   # 過去の類似ケース（履歴が貯まったら埋める。暗号化対象）
+            "ai": "",     # AIの見立て（fill_ai が埋める。暗号化対象）
         },
     }
 
 
 # ============================================================
 # 4. ざわつき指数（当日の異常強度を0-100へ。まずは簡易版）
-#    ※本来は過去分布と比較。運用しながら履歴を貯めて精緻化する。
 # ============================================================
 def zawatsuki_index(scores):
-    # 全対象スコアの合計を、経験的な基準でスケーリング
     R = sum(scores)
-    # 対象10数個で、平常時のRは1〜2程度、大荒れで5前後を想定した暫定式
     idx = min(int(R / 6 * 100), 100)
     return idx
 
@@ -155,6 +157,10 @@ def zawatsuki_index(scores):
 # ============================================================
 # 5. メイン
 # ============================================================
+# 無料（平文）で出してよいキー＝見出しだけ。facts/hist/ai は有料なので含めない
+FREE_KEYS = ("badge", "cls", "mkt", "name", "chg", "chgcls", "desc")
+
+
 def main():
     results = []
     scores = []
@@ -188,10 +194,27 @@ def main():
     take = max(3, n_anom)
     cards = [c for s, a, c in results[:take]]
 
+    # --- AIの見立てを各カードに付与（全カード＝「全カードのAI分析」の約束どおり）---
+    cards = fill_ai(cards)
+
+    # --- 無料（見出しのみ）と 有料（全情報を暗号化）に分割 ---
+    free = [{k: c.get(k) for k in FREE_KEYS} for c in cards[:3]]
+
+    enc = None
+    master = os.environ.get("MARKETZAWA_MASTER_KEY")
+    if master:
+        pw = monthly_password(master)
+        enc = encrypt(pw, json.dumps({"cards": cards}, ensure_ascii=False))
+        print(f"   暗号化: OK（対象月 {current_ym()}）")
+    else:
+        print("!! MARKETZAWA_MASTER_KEY 未設定：暗号化をスキップ（有料解除は無効になります）")
+
     out = {
         "updated": datetime.datetime.now().strftime("%Y/%m/%d %H:%M"),
         "index": zawatsuki_index(scores),
-        "cards": cards,
+        "free": free,
+        "paid_count": max(0, len(cards) - 3),
+        "enc": enc,
     }
 
     # index.html の埋め込み枠を書き換える（外部ファイルを使わない安定方式）
@@ -214,7 +237,7 @@ def main():
 
     print(f"\n→ index.html 更新完了")
     print(f"   ざわつき指数: {out['index']}")
-    print(f"   異常カード数: {len(cards)}")
+    print(f"   カード数: {len(cards)}（無料 {len(free)} / 有料 {out['paid_count']}）")
 
 
 if __name__ == "__main__":
