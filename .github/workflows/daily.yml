@@ -1,5 +1,6 @@
 name: daily update
 
+# 毎朝 JST 6:00（UTC 21:00）に自動実行。手動実行も可能。
 on:
   schedule:
     - cron: '0 21 * * *'
@@ -18,9 +19,12 @@ jobs:
           python-version: '3.11'
 
       - name: install deps
-        run: pip install yfinance requests
+        run: pip install yfinance requests anthropic cryptography
 
-      - name: generate (update index.html)
+      - name: generate (異常検知＋AI見立て＋暗号化を index.html に埋め込み)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          MARKETZAWA_MASTER_KEY: ${{ secrets.MARKETZAWA_MASTER_KEY }}
         run: python generate.py
 
       - name: commit & push
