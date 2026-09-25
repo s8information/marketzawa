@@ -191,7 +191,7 @@ def main():
     results.sort(key=lambda x: x[0], reverse=True)
     n_anom = sum(1 for s, a, c in results if a)
     # 異常は全部出す。3件未満の日は、相対的に最も動いた上位で最低3件まで埋める
-    take = max(3, n_anom)
+    take = len(results)
     cards = [c for s, a, c in results[:take]]
 
     # --- AIの見立てを各カードに付与（全カード＝「全カードのAI分析」の約束どおり）---
