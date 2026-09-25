@@ -213,7 +213,7 @@
         <button id="go">解除</button>
       </div>
       <div class="err" id="err"></div>
-      <div class="hint">※ デモ用パスワード：<b>zawa</b></div>
+      <div class="hint">※ パスワードは note メンバーシップでお知らせします（毎月更新）。</div>
     </div>
   </div>
 
@@ -319,7 +319,7 @@
 
 <script>
   /* MARKETZAWA_DATA_START —— generate.py がこの行から END までを毎朝書き換えます */
-  var EMBEDDED_DATA = {"updated": "2026/09/24 23:50", "index": 12, "cards": [{"badge": "注目", "cls": "b-calm", "mkt": "商品", "name": "原油 WTI", "chg": "+2.9%", "chgcls": "up", "desc": "前日比+2.9%（Zスコア +0.8）。本日の中では相対的に動きがありました。", "facts": [["変動", "+2.9%（Zスコア +0.8）"], ["出来高", "平均の1.7倍"]], "hist": "", "ai": ""}, {"badge": "注目", "cls": "b-calm", "mkt": "為替", "name": "ユーロ円", "chg": "+0.3%", "chgcls": "up", "desc": "前日比+0.3%（Zスコア +0.8）。本日の中では相対的に動きがありました。", "facts": [["変動", "+0.3%（Zスコア +0.8）"]], "hist": "", "ai": ""}, {"badge": "注目", "cls": "b-calm", "mkt": "為替", "name": "ドル円", "chg": "+0.3%", "chgcls": "up", "desc": "前日比+0.3%（Zスコア +0.5）。本日の中では相対的に動きがありました。", "facts": [["変動", "+0.3%（Zスコア +0.5）"]], "hist": "", "ai": ""}]};
+  var EMBEDDED_DATA = null;
   /* MARKETZAWA_DATA_END */
 
   // 静かな日、有料枠に出すサンプル（ぼかして「会員コンテンツがある」ことを示す）
@@ -393,6 +393,25 @@
     ]
   };
 
+  // ===== 課金ゲート：AI分析は月替わりパスワードで暗号化して埋め込み、ここで復号 =====
+  // 平文の有料コンテンツはDOMに一切入れない（view-source対策）。
+  var GATE = { enc:null, legacyPaid:null };
+  const LS_KEY = 'mz_pass';
+  const PBKDF2_ITER = 200000;               // generate.py（marketzawa_ai.py）の値と一致必須
+  const _te = new TextEncoder(), _td = new TextDecoder();
+  const _b64 = b64 => Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+  async function _deriveKey(pw, salt){
+    const km = await crypto.subtle.importKey('raw', _te.encode(pw), 'PBKDF2', false, ['deriveKey']);
+    return crypto.subtle.deriveKey(
+      { name:'PBKDF2', salt, iterations:PBKDF2_ITER, hash:'SHA-256' },
+      km, { name:'AES-GCM', length:256 }, false, ['decrypt']);
+  }
+  async function decryptBlob(pw, b64){
+    const raw=_b64(b64), salt=raw.slice(0,16), iv=raw.slice(16,28), ct=raw.slice(28);
+    const pt=await crypto.subtle.decrypt({name:'AES-GCM', iv}, await _deriveKey(pw,salt), ct);
+    return _td.decode(pt);
+  }
+
   function analysisHTML(it, hidden){
     const f=(it.facts||[]).map(x=>`<div class="fact"><span class="k">${x[0]}</span><span class="v">${x[1]}</span></div>`).join('');
     const h=it.hist?`<div class="fact"><span class="k">過去</span><span class="v">${it.hist}</span></div>`:'';
@@ -426,26 +445,41 @@
     }
     const hd = document.querySelector('.hero-date');
     if(hd && data.updated) hd.textContent = data.updated + ' 更新・前営業日までの動き';
-    const cards = (data && data.cards) ? data.cards : [];
+    // --- カード（暗号ゲート対応）---
+    const gated = (data && typeof data.enc !== 'undefined');
+    let freeCards, paidCount;
+    if(gated){
+      freeCards = data.free || [];          // 無料＝見出しのみ（facts/hist/aiは含まない）
+      paidCount = data.paid_count || 0;
+      GATE.enc = data.enc;                  // 有料の中身は暗号文のまま保持。復号は解除時だけ
+    } else {
+      const cards = (data && data.cards) ? data.cards : [];   // FALLBACK（ダミー）
+      freeCards = cards.slice(0,3);
+      paidCount = Math.max(0, cards.length - 3);
+      GATE.legacyPaid = cards.slice(3);
+    }
+    const total = freeCards.length + paidCount;
     const fh = document.querySelector('.feed-head span');
-    if(fh) fh.textContent = '全' + cards.length + '件・市場横断';
-    const free = cards.slice(0,3), paid = cards.slice(3);
+    if(fh) fh.textContent = '全' + total + '件・市場横断';
+
     const freeEl = document.getElementById('free');
-    if(free.length === 0){
+    if(freeCards.length === 0){
       freeEl.innerHTML = '<div class="card"><div class="desc">今朝は目立ったざわつきはありません。市場はおおむね平常運転です。</div></div>';
     } else {
-      freeEl.innerHTML = free.map(it=>cardHTML(it,'free')).join('');
+      freeEl.innerHTML = freeCards.map(it=>cardHTML(it,'free')).join('');
     }
-    // ペイウォールは枚数に関係なく常に表示（静かな日もログイン・課金導線を残す）
+
+    // ペイウォールは常に表示。ぼかしプレビューは「中身の見えないサンプル」で（平文リーク無し）
     const vt = document.querySelector('.veil-title');
-    if(paid.length > 0){
-      // 4件目以降がある日：それをぼかしプレビュー
-      document.getElementById('paid').innerHTML = paid.map(it=>cardHTML(it,'paid')).join('');
-      if(vt) vt.innerHTML = '🔒 あと<span class="num">' + paid.length + '</span>件＋全カードのAI分析';
+    if(!gated && GATE.legacyPaid && GATE.legacyPaid.length > 0){
+      document.getElementById('paid').innerHTML = GATE.legacyPaid.map(it=>cardHTML(it,'paid')).join('');
     } else {
-      // 静かな日：サンプルのぼかしカードで「会員コンテンツがある」ことを示す
       document.getElementById('paid').innerHTML = SAMPLE_LOCKED;
-      if(vt) vt.innerHTML = '🔒 各カードの背景データとAIの見立て';
+    }
+    if(vt){
+      vt.innerHTML = paidCount > 0
+        ? '🔒 あと<span class="num">' + paidCount + '</span>件＋全カードのAI分析'
+        : '🔒 各カードの背景データとAIの見立て';
     }
   }
   var DATA = (EMBEDDED_DATA && EMBEDDED_DATA.index != null) ? EMBEDDED_DATA : FALLBACK;
@@ -468,20 +502,50 @@
   document.getElementById('dot').setAttribute('cy',pts[pts.length-1][1].toFixed(1));
 
   const pw=document.getElementById('pw'), err=document.getElementById('err');
-  function tryUnlock(){
-    if(pw.value.trim().toLowerCase()==='zawa'){
-      document.querySelectorAll('.locked-analysis').forEach(e=>e.style.display='flex');
-      document.querySelectorAll('.lock-hint').forEach(e=>e.style.display='none');
-      const p=document.getElementById('paid');
-      if(p.querySelector('[data-sample]')) p.innerHTML='';  // 静かな日のサンプルは解除後は不要
-      p.classList.remove('blurred');
-      p.parentElement.style.maxHeight='none';
-      document.getElementById('veil').style.display='none';
-    } else { err.textContent='パスワードが違います。'; }
+
+  function _revealCards(cards){
+    // 復号済みの全カードで描画し直す（無料3件も分析付きで表示）
+    const free=cards.slice(0,3), paid=cards.slice(3);
+    document.getElementById('free').innerHTML = free.map(it=>cardHTML(it,'paid')).join('');
+    const p=document.getElementById('paid');
+    p.innerHTML = paid.map(it=>cardHTML(it,'paid')).join('');
+    p.classList.remove('blurred');
+    p.parentElement.style.maxHeight='none';
+    document.getElementById('veil').style.display='none';
   }
-  document.getElementById('go').addEventListener('click',tryUnlock);
+  function _revealLegacy(){
+    // FALLBACK（ダミー）用：従来どおり見せるだけ
+    document.querySelectorAll('.locked-analysis').forEach(e=>e.style.display='flex');
+    document.querySelectorAll('.lock-hint').forEach(e=>e.style.display='none');
+    const p=document.getElementById('paid');
+    if(p.querySelector('[data-sample]')) p.innerHTML='';
+    p.classList.remove('blurred');
+    p.parentElement.style.maxHeight='none';
+    document.getElementById('veil').style.display='none';
+  }
+  async function tryUnlock(silent){
+    const val = pw.value.trim();
+    if(!val) return;
+    if(!GATE.enc){                          // 実データ無し（FALLBACKデモ）＝従来の 'zawa'
+      if(val.toLowerCase()==='zawa'){ _revealLegacy(); }
+      else if(!silent){ err.textContent='パスワードが違います。'; }
+      return;
+    }
+    try{
+      const full = JSON.parse(await decryptBlob(val, GATE.enc));   // { cards:[...] }
+      _revealCards(full.cards || []);
+      localStorage.setItem(LS_KEY, val);    // 実サイトのブラウザ記憶（次回自動解除）
+    }catch(e){
+      localStorage.removeItem(LS_KEY);
+      if(!silent) err.textContent='パスワードが違います。（今月のものをご確認ください）';
+    }
+  }
+  document.getElementById('go').addEventListener('click',()=>tryUnlock(false));
   pw.addEventListener('input',()=>err.textContent='');
-  pw.addEventListener('keydown',e=>{if(e.key==='Enter')tryUnlock();});
+  pw.addEventListener('keydown',e=>{if(e.key==='Enter')tryUnlock(false);});
+
+  // 記憶済みパスワードがあれば自動解除（失敗しても静かにロックのまま）
+  (function(){ const s=localStorage.getItem(LS_KEY); if(s && GATE.enc){ pw.value=s; tryUnlock(true); } })();
 
   const modal=document.getElementById('modal');
   document.getElementById('q').addEventListener('click',()=>modal.classList.add('on'));
