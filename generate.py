@@ -29,7 +29,7 @@ except ImportError:
     print("先に `pip install yfinance requests anthropic cryptography` を実行してください")
     sys.exit(1)
 
-from marketzawa_ai import fill_ai, monthly_password, encrypt, current_ym
+from marketzawa_ai import fill_ai, fill_ai_groups, monthly_password, encrypt, current_ym
 
 
 # ============================================================
@@ -52,6 +52,33 @@ CRYPTOS = {
     "ビットコイン":   ("BTCUSDT", "暗号資産"),
     "イーサリアム":   ("ETHUSDT", "暗号資産"),
     "ソラナ":         ("SOLUSDT", "暗号資産"),
+}
+
+# セクター別ざわつき（米国11セクター＝SPDRセクターETF）表示名: ティッカー
+SECTORS = {
+    "情報技術":     "XLK",
+    "通信サービス": "XLC",
+    "エネルギー":   "XLE",
+    "素材":         "XLB",
+    "一般消費財":   "XLY",
+    "資本財":       "XLI",
+    "金融":         "XLF",
+    "公益":         "XLU",
+    "不動産":       "XLRE",
+    "ヘルスケア":   "XLV",
+    "生活必需品":   "XLP",
+}
+
+# テーマ別ざわつき（テーマ系ETF）表示名: ティッカー ※入れ替え自由
+THEMES = {
+    "半導体":         "SOXX",
+    "生成AI":         "BOTZ",
+    "防衛":           "ITA",
+    "宇宙":           "UFO",
+    "暗号資産関連株": "BITQ",
+    "EV・電池":       "LIT",
+    "バイオ":         "XBI",
+    "クリーンエネ":   "ICLN",
 }
 
 
@@ -148,6 +175,62 @@ def analyze(name, closes, vols, market):
 # ============================================================
 # 4. ざわつき指数（当日の異常強度を0-100へ。まずは簡易版）
 # ============================================================
+def score_to_level(s100):
+    """0-100 のざわつきスコアを (ラベル, 色) に変換。index.htmlの色と揃える。"""
+    if s100 >= 80: return "かなり荒れ", "#F87171"
+    if s100 >= 65: return "ざわつき",   "#FB923C"
+    if s100 >= 50: return "やや動意",   "#FBBF24"
+    if s100 >= 40: return "おおむね平常", "#A3E635"
+    if s100 >= 30: return "やや静か",   "#A3E635"
+    return "静か", "#5EE7D0"
+
+
+def analyze_group(name, closes, vols):
+    """セクター/テーマ1件を {name, score(0-100), lv, color, facts, ai} で返す。"""
+    if not closes or len(closes) < 25:
+        return None
+    rets = [(closes[i]-closes[i-1])/closes[i-1] for i in range(1, len(closes))]
+    window = rets[-21:-1]
+    mu = statistics.mean(window)
+    sd = statistics.pstdev(window) or 1e-9
+    z = (rets[-1]-mu)/sd
+    today_ret = rets[-1]*100
+
+    vol_ratio = None
+    if vols and sum(vols[-21:-1]) > 0:
+        vavg = statistics.mean(vols[-21:-1])
+        vol_ratio = vols[-1]/vavg if vavg else None
+
+    s_move = min(abs(z)/4, 1)
+    s_vol  = min(max((vol_ratio or 1)-1, 0)/4, 1) if vol_ratio else 0
+    score100 = round(max(s_move, s_vol) * 100)
+    lv, color = score_to_level(score100)
+
+    facts = [["変動", f"{today_ret:+.1f}%（Zスコア {z:+.1f}）"]]
+    if vol_ratio is not None:
+        facts.append(["出来高", f"平均の{vol_ratio:.1f}倍"])
+
+    return {"name": name, "score": score100, "lv": lv, "color": color, "facts": facts, "ai": ""}
+
+
+def build_groups(mapping):
+    """SECTORS/THEMES から実データを取ってグループのリストを作る（スコア降順）。"""
+    out = []
+    for name, ticker in mapping.items():
+        try:
+            c, v = get_stock(ticker)
+            g = analyze_group(name, c, v)
+            if g:
+                out.append(g)
+                print(f"OK  [group] {name}")
+            else:
+                print(f"--  [group] {name}: データ不足")
+        except Exception as e:
+            print(f"NG  [group] {name}: {e}")
+    out.sort(key=lambda x: x["score"], reverse=True)
+    return out
+
+
 def zawatsuki_index(scores):
     R = sum(scores)
     idx = min(int(R / 6 * 100), 100)
@@ -190,21 +273,31 @@ def main():
     # スコアの強い順に並べる（異常は score>=0.5 になるので自然に上位へ）
     results.sort(key=lambda x: x[0], reverse=True)
     n_anom = sum(1 for s, a, c in results if a)
-    # 異常は全部出す。3件未満の日は、相対的に最も動いた上位で最低3件まで埋める
+    # 表示カードは全件（無料3＋有料それ以降）。全カードにAI分析を付ける
     take = len(results)
     cards = [c for s, a, c in results[:take]]
 
-    # --- AIの見立てを各カードに付与（全カード＝「全カードのAI分析」の約束どおり）---
+    # --- AIの見立てを各カードに付与 ---
     cards = fill_ai(cards)
 
-    # --- 無料（見出しのみ）と 有料（全情報を暗号化）に分割 ---
+    # --- セクター/テーマ：実データ取得 → AI見立て（ざわついた群のみ）---
+    sectors = build_groups(SECTORS)
+    themes  = build_groups(THEMES)
+    sectors = fill_ai_groups(sectors, "セクター")   # score>=50 の群だけAIに投げる
+    themes  = fill_ai_groups(themes,  "テーマ")
+
+    # --- 無料（見出し/スコアのみ）と 有料（全情報を暗号化）に分割 ---
     free = [{k: c.get(k) for k in FREE_KEYS} for c in cards[:3]]
+    GROUP_FREE = ("name", "score", "lv", "color")   # 無料はグリッド表示に必要な分だけ
+    sectors_free = [{k: g[k] for k in GROUP_FREE} for g in sectors]
+    themes_free  = [{k: g[k] for k in GROUP_FREE} for g in themes]
 
     enc = None
     master = os.environ.get("MARKETZAWA_MASTER_KEY")
     if master:
         pw = monthly_password(master)
-        enc = encrypt(pw, json.dumps({"cards": cards}, ensure_ascii=False))
+        payload = {"cards": cards, "sectors": sectors, "themes": themes}
+        enc = encrypt(pw, json.dumps(payload, ensure_ascii=False))
         print(f"   暗号化: OK（対象月 {current_ym()}）")
     else:
         print("!! MARKETZAWA_MASTER_KEY 未設定：暗号化をスキップ（有料解除は無効になります）")
@@ -214,6 +307,8 @@ def main():
         "index": zawatsuki_index(scores),
         "free": free,
         "paid_count": max(0, len(cards) - 3),
+        "sectors": sectors_free,
+        "themes": themes_free,
         "enc": enc,
     }
 
@@ -238,6 +333,7 @@ def main():
     print(f"\n→ index.html 更新完了")
     print(f"   ざわつき指数: {out['index']}")
     print(f"   カード数: {len(cards)}（無料 {len(free)} / 有料 {out['paid_count']}）")
+    print(f"   セクター {len(sectors)} 件 / テーマ {len(themes)} 件")
 
 
 if __name__ == "__main__":
