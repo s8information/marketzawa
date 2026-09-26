@@ -217,76 +217,19 @@
     </div>
   </div>
 
-  <!-- ▼▼ セクター別ざわつきマップ（不要ならこのブロックごと削除可） ▼▼ -->
+  <!-- ▼▼ セクター別ざわつきマップ（generate.pyが埋める。タップで詳細＋AI） ▼▼ -->
   <div class="sector">
     <div class="sector-head"><h3>セクター別ざわつき</h3><span>米国11セクター・前営業日</span></div>
-    <div class="sec-grid">
-      <div class="sec"><span class="bar" style="background:#F87171"></span>
-        <span class="sec-val num" style="color:#F87171">84</span>
-        <div class="sec-name">情報技術</div><div class="sec-lv">かなり荒れ</div></div>
-      <div class="sec"><span class="bar" style="background:#FB923C"></span>
-        <span class="sec-val num" style="color:#FB923C">71</span>
-        <div class="sec-name">通信サービス</div><div class="sec-lv">ざわつき</div></div>
-      <div class="sec"><span class="bar" style="background:#FB923C"></span>
-        <span class="sec-val num" style="color:#FB923C">68</span>
-        <div class="sec-name">エネルギー</div><div class="sec-lv">ざわつき</div></div>
-      <div class="sec"><span class="bar" style="background:#FBBF24"></span>
-        <span class="sec-val num" style="color:#FBBF24">58</span>
-        <div class="sec-name">素材</div><div class="sec-lv">やや動意</div></div>
-      <div class="sec"><span class="bar" style="background:#FBBF24"></span>
-        <span class="sec-val num" style="color:#FBBF24">52</span>
-        <div class="sec-name">一般消費財</div><div class="sec-lv">やや動意</div></div>
-      <div class="sec"><span class="bar" style="background:#A3E635"></span>
-        <span class="sec-val num" style="color:#A3E635">47</span>
-        <div class="sec-name">資本財</div><div class="sec-lv">おおむね平常</div></div>
-      <div class="sec"><span class="bar" style="background:#A3E635"></span>
-        <span class="sec-val num" style="color:#A3E635">44</span>
-        <div class="sec-name">金融</div><div class="sec-lv">おおむね平常</div></div>
-      <div class="sec"><span class="bar" style="background:#A3E635"></span>
-        <span class="sec-val num" style="color:#A3E635">38</span>
-        <div class="sec-name">公益</div><div class="sec-lv">やや静か</div></div>
-      <div class="sec"><span class="bar" style="background:#5EE7D0"></span>
-        <span class="sec-val num" style="color:#5EE7D0">33</span>
-        <div class="sec-name">不動産</div><div class="sec-lv">静か</div></div>
-      <div class="sec"><span class="bar" style="background:#5EE7D0"></span>
-        <span class="sec-val num" style="color:#5EE7D0">29</span>
-        <div class="sec-name">ヘルスケア</div><div class="sec-lv">静か</div></div>
-      <div class="sec"><span class="bar" style="background:#5EE7D0"></span>
-        <span class="sec-val num" style="color:#5EE7D0">22</span>
-        <div class="sec-name">生活必需品</div><div class="sec-lv">静か</div></div>
-    </div>
+    <div class="sec-grid" id="sectorGrid"></div>
+    <div style="font-size:11px;color:var(--tx3);margin:8px 2px 0">タップで詳細データ・AIの見立て（🔒 メンバー限定）</div>
   </div>
   <!-- ▲▲ セクター別ざわつきマップ ここまで ▲▲ -->
 
-  <!-- ▼▼ テーマ別ざわつき（不要ならこのブロックごと削除可） ▼▼ -->
+  <!-- ▼▼ テーマ別ざわつき（generate.pyが埋める。タップで詳細＋AI） ▼▼ -->
   <div class="sector">
     <div class="sector-head"><h3>テーマ別ざわつき</h3><span>注目テーマ・前営業日</span></div>
-    <div class="sec-grid">
-      <div class="sec"><span class="bar" style="background:#F87171"></span>
-        <span class="sec-val num" style="color:#F87171">88</span>
-        <div class="sec-name">半導体</div><div class="sec-lv">かなり荒れ</div></div>
-      <div class="sec"><span class="bar" style="background:#FB923C"></span>
-        <span class="sec-val num" style="color:#FB923C">79</span>
-        <div class="sec-name">生成AI</div><div class="sec-lv">ざわつき</div></div>
-      <div class="sec"><span class="bar" style="background:#FB923C"></span>
-        <span class="sec-val num" style="color:#FB923C">66</span>
-        <div class="sec-name">防衛</div><div class="sec-lv">ざわつき</div></div>
-      <div class="sec"><span class="bar" style="background:#FBBF24"></span>
-        <span class="sec-val num" style="color:#FBBF24">61</span>
-        <div class="sec-name">宇宙</div><div class="sec-lv">やや動意</div></div>
-      <div class="sec"><span class="bar" style="background:#FBBF24"></span>
-        <span class="sec-val num" style="color:#FBBF24">57</span>
-        <div class="sec-name">暗号資産関連株</div><div class="sec-lv">やや動意</div></div>
-      <div class="sec"><span class="bar" style="background:#A3E635"></span>
-        <span class="sec-val num" style="color:#A3E635">43</span>
-        <div class="sec-name">EV・電池</div><div class="sec-lv">おおむね平常</div></div>
-      <div class="sec"><span class="bar" style="background:#5EE7D0"></span>
-        <span class="sec-val num" style="color:#5EE7D0">31</span>
-        <div class="sec-name">バイオ</div><div class="sec-lv">静か</div></div>
-      <div class="sec"><span class="bar" style="background:#5EE7D0"></span>
-        <span class="sec-val num" style="color:#5EE7D0">26</span>
-        <div class="sec-name">クリーンエネ</div><div class="sec-lv">静か</div></div>
-    </div>
+    <div class="sec-grid" id="themeGrid"></div>
+    <div style="font-size:11px;color:var(--tx3);margin:8px 2px 0">タップで詳細データ・AIの見立て（🔒 メンバー限定）</div>
   </div>
   <!-- ▲▲ テーマ別ざわつき ここまで ▲▲ -->
 
@@ -309,6 +252,10 @@
   </footer>
 </div>
 
+<div class="modal" id="secModal">
+  <div class="modal-card" id="secModalBody"></div>
+</div>
+
 <div class="modal" id="modal">
   <div class="modal-card">
     <div class="mh"><span class="ai-dot"></span>ざわつき指数とは</div>
@@ -319,7 +266,7 @@
 
 <script>
   /* MARKETZAWA_DATA_START —— generate.py がこの行から END までを毎朝書き換えます */
-  var EMBEDDED_DATA = {"updated": "2026/09/25 23:55", "index": 23, "free": [{"badge": "注目", "cls": "b-calm", "mkt": "商品", "name": "原油 WTI", "chg": "-3.1%", "chgcls": "down", "desc": "前日比-3.1%（Zスコア -1.5）。本日の中では相対的に動きがありました。"}, {"badge": "注目", "cls": "b-calm", "mkt": "為替", "name": "ドル円", "chg": "-0.7%", "chgcls": "down", "desc": "前日比-0.7%（Zスコア -0.9）。本日の中では相対的に動きがありました。"}, {"badge": "注目", "cls": "b-calm", "mkt": "株価指数", "name": "S&P500", "chg": "+0.5%", "chgcls": "up", "desc": "前日比+0.5%（Zスコア +0.8）。本日の中では相対的に動きがありました。"}], "paid_count": 5, "enc": "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"};
+  var EMBEDDED_DATA = null;
   /* MARKETZAWA_DATA_END */
 
   // 静かな日、有料枠に出すサンプル（ぼかして「会員コンテンツがある」ことを示す）
@@ -390,6 +337,16 @@
      desc:'狭いレンジが続き、ブレイク待ち。', facts:[['収縮','値幅が20日平均の半分以下']],
      hist:'長い収縮の後は、ブレイク方向に大きく動きやすい。',
      ai:'エネルギーを溜めている状態。抜けた瞬間の初動が狙い目。'},
+    ],
+    sectors: [
+      {name:'情報技術',score:84,lv:'かなり荒れ',color:'#F87171',facts:[['変動','+2.1%（Zスコア +2.6）'],['出来高','平均の1.9倍']],ai:'ハイテク主導で買いが集中。指数を牽引する反面、逆回転時の振れも大きい。まず金利の向きが追い風か逆風か確認を。'},
+      {name:'通信サービス',score:71,lv:'ざわつき',color:'#FB923C',facts:[['変動','+1.4%（Zスコア +1.8）']],ai:'大型プラットフォーム株に資金。決算や規制ニュースの有無を確認したい。'},
+      {name:'エネルギー',score:44,lv:'おおむね平常',color:'#A3E635',facts:[['変動','+0.3%']],ai:''},
+    ],
+    themes: [
+      {name:'半導体',score:88,lv:'かなり荒れ',color:'#F87171',facts:[['変動','+3.0%（Zスコア +3.1）'],['出来高','平均の2.4倍']],ai:'AI関連の需要期待で資金集中。過熱感も強く、翌日以降の反落に注意。'},
+      {name:'生成AI',score:79,lv:'ざわつき',color:'#FB923C',facts:[['変動','+2.2%（Zスコア +2.0）']],ai:'テーマ買いが継続。半導体と連動しているかが強さの見極めポイント。'},
+      {name:'バイオ',score:31,lv:'静か',color:'#5EE7D0',facts:[['変動','-0.2%']],ai:''},
     ]
   };
 
@@ -428,6 +385,54 @@
     }
     return `<div class="card">${base}${analysisHTML(it,false)}</div>`;
   }
+  // ===== セクター/テーマ：グリッド描画＋タップで詳細モーダル（有料は解除で解放）=====
+  var SECDATA = { sectors:[], themes:[], unlocked:false };
+  function secTileHTML(it, kind, i){
+    return `<div class="sec" data-kind="${kind}" data-i="${i}" style="cursor:pointer">
+      <span class="bar" style="background:${it.color}"></span>
+      <span class="sec-val num" style="color:${it.color}">${it.score}</span>
+      <div class="sec-name">${it.name}</div><div class="sec-lv">${it.lv}</div></div>`;
+  }
+  function renderGroups(){
+    const sg=document.getElementById('sectorGrid'), tg=document.getElementById('themeGrid');
+    if(sg) sg.innerHTML = SECDATA.sectors.map((it,i)=>secTileHTML(it,'sector',i)).join('');
+    if(tg) tg.innerHTML = SECDATA.themes.map((it,i)=>secTileHTML(it,'theme',i)).join('');
+    document.querySelectorAll('#sectorGrid .sec, #themeGrid .sec').forEach(el=>{
+      el.addEventListener('click',()=>openSecModal(el.dataset.kind, +el.dataset.i));
+    });
+  }
+  function applyGroupsFree(data){
+    SECDATA.sectors = (data && data.sectors) ? data.sectors.slice() : [];
+    SECDATA.themes  = (data && data.themes)  ? data.themes.slice()  : [];
+    renderGroups();
+  }
+  function applyGroupsFull(full){
+    if(full && full.sectors) SECDATA.sectors = full.sectors;
+    if(full && full.themes)  SECDATA.themes  = full.themes;
+    SECDATA.unlocked = true;
+  }
+  function openSecModal(kind, i){
+    const arr = kind==='sector' ? SECDATA.sectors : SECDATA.themes;
+    const it = arr[i]; if(!it) return;
+    const label = kind==='sector' ? 'セクター' : 'テーマ';
+    let body =
+      `<div class="mh"><span class="ai-dot" style="background:${it.color}"></span>${it.name}`+
+      `<span style="margin-left:auto;font-size:20px;font-weight:700;color:${it.color}">${it.score}</span></div>`+
+      `<div class="sec-lv" style="margin:-4px 2px 12px">${label}のざわつき・${it.lv}</div>`;
+    if(SECDATA.unlocked){
+      const f=(it.facts||[]).map(x=>`<div class="fact"><span class="k">${x[0]}</span><span class="v">${x[1]}</span></div>`).join('');
+      const a=it.ai
+        ? `<div class="ai-box"><div class="ai-head"><span class="ai-dot"></span>AIの見立て</div><div class="ai-text">${it.ai}</div><div class="ai-cav">※AIの自動生成です。売買推奨ではありません。</div></div>`
+        : `<p style="color:var(--tx3)">本日は目立った動きがないため、AIの見立てはありません。</p>`;
+      body += `<div class="analysis" style="display:flex">${f}${a}</div>`;
+    } else {
+      body += `<p>この${label}の詳細データとAIの見立ては<b>メンバー限定</b>です。ページ上部のパスワード欄で解除すると読めます。</p>`;
+    }
+    body += `<button class="mclose" onclick="document.getElementById('secModal').classList.remove('on')">閉じる</button>`;
+    document.getElementById('secModalBody').innerHTML = body;
+    document.getElementById('secModal').classList.add('on');
+  }
+
   function render(data){
     const idx = (data && data.index!=null) ? data.index : 0;
     const heroNum = document.getElementById('heroNum');
@@ -481,6 +486,9 @@
         ? '🔒 あと<span class="num">' + paidCount + '</span>件＋全カードのAI分析'
         : '🔒 各カードの背景データとAIの見立て';
     }
+
+    // セクター/テーマのグリッド描画（無料表示。詳細＋AIは解除後に解放）
+    applyGroupsFree(data);
   }
   var DATA = (EMBEDDED_DATA && EMBEDDED_DATA.index != null) ? EMBEDDED_DATA : FALLBACK;
   render(DATA);
@@ -503,8 +511,10 @@
 
   const pw=document.getElementById('pw'), err=document.getElementById('err');
 
-  function _revealCards(cards){
+  function _revealCards(full){
     // 復号済みの全カードで描画し直す（無料3件も分析付きで表示）
+    const cards = full.cards || [];
+    applyGroupsFull(full);           // セクター/テーマも詳細＋AIを解放
     const free=cards.slice(0,3), paid=cards.slice(3);
     document.getElementById('free').innerHTML = free.map(it=>cardHTML(it,'paid')).join('');
     const p=document.getElementById('paid');
@@ -515,6 +525,7 @@
   }
   function _revealLegacy(){
     // FALLBACK（ダミー）用：従来どおり見せるだけ
+    SECDATA.unlocked = true;
     document.querySelectorAll('.locked-analysis').forEach(e=>e.style.display='flex');
     document.querySelectorAll('.lock-hint').forEach(e=>e.style.display='none');
     const p=document.getElementById('paid');
@@ -532,8 +543,8 @@
       return;
     }
     try{
-      const full = JSON.parse(await decryptBlob(val, GATE.enc));   // { cards:[...] }
-      _revealCards(full.cards || []);
+      const full = JSON.parse(await decryptBlob(val, GATE.enc));   // { cards, sectors, themes }
+      _revealCards(full);
       localStorage.setItem(LS_KEY, val);    // 実サイトのブラウザ記憶（次回自動解除）
     }catch(e){
       localStorage.removeItem(LS_KEY);
@@ -551,6 +562,8 @@
   document.getElementById('q').addEventListener('click',()=>modal.classList.add('on'));
   document.getElementById('mclose').addEventListener('click',()=>modal.classList.remove('on'));
   modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('on')});
+  const secModal=document.getElementById('secModal');
+  secModal.addEventListener('click',e=>{if(e.target===secModal)secModal.classList.remove('on')});
 </script>
 </body>
 </html>
