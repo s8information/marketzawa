@@ -24,7 +24,7 @@ from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
 # ---- 設定（index.html と一致させる項目に注意）-------------------------------
 MODEL = "claude-haiku-4-5-20251001"   # 最新IDはコンソールで確認可
-MAX_AI_CALLS = 30                     # 1回の実行でAIに投げる上限（暴走課金の保険）
+MAX_AI_CALLS = 40                     # 1回の実行でAIに投げる上限（暴走課金の保険）
 PBKDF2_ITER = 200000                  # ★ index.html の PBKDF2_ITER と必ず同じ
 
 JST = timezone(timedelta(hours=9))
@@ -117,6 +117,66 @@ def fill_ai(cards: list[dict], *, max_calls: int = MAX_AI_CALLS) -> list[dict]:
             print(f"[ai] {c.get('name')} 失敗: {e}")
     print(f"[ai] 生成 {n} 件")
     return cards
+
+
+# ---- セクター/テーマ（グループ）のAI見立て ---------------------------------
+_SYSTEM_GROUP = (
+    "あなたは相場の異常検知サイト『今日のざわつき』の解説担当。"
+    "与えた指標データだけを根拠に、そのセクター/テーマが今日なぜ動いたかの見立てを日本語で淡々と書く。"
+    "制約: 2〜3文/約80〜140字。売買推奨・目標値・断定的予測は禁止"
+    "（『〜の可能性』『過去には〜だった』まで）。"
+    "最後は『で、どうする？』の視点で“次に確認すべき点”を一つだけ示す。"
+    "指標にない情報を創作しない。見出し・箇条書きは使わず地の文で。"
+)
+
+
+def _prompt_group(item: dict, kind: str) -> str:
+    facts = item.get("facts") or []
+    facts_txt = " / ".join(f"{k}:{v}" for k, v in facts) if facts else "なし"
+    return (
+        f"{kind}: {item.get('name')}\n"
+        f"ざわつきスコア: {item.get('score')}/100（{item.get('lv')}）\n"
+        f"指標: {facts_txt}\n\n"
+        f"この{kind}が今日ざわついている理由の見立てを書いて。"
+    )
+
+
+def generate_group_comment(client, item: dict, kind: str) -> str:
+    msg = client.messages.create(
+        model=MODEL,
+        max_tokens=300,
+        system=_SYSTEM_GROUP,
+        messages=[{"role": "user", "content": _prompt_group(item, kind)}],
+    )
+    return "".join(b.text for b in msg.content if b.type == "text").strip()
+
+
+def fill_ai_groups(items, kind, *, score_threshold=50, max_calls=MAX_AI_CALLS):
+    """
+    セクター/テーマ各要素の 'ai' を埋める。
+    score_threshold 未満（＝静かな群）はAIに投げない（ai欄は空のまま）。
+    APIキーが無ければ何もしない。
+    """
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        return items
+    from anthropic import Anthropic
+    client = Anthropic()
+    n = 0
+    for it in items:
+        if it.get("score", 0) < score_threshold:
+            continue
+        if n >= max_calls:
+            print(f"[ai/{kind}] 上限到達、以降スキップ")
+            break
+        try:
+            it["ai"] = generate_group_comment(client, it, kind)
+            n += 1
+            print(f"[ai/{kind}] {it.get('name')} OK")
+        except Exception as e:
+            it.setdefault("ai", "")
+            print(f"[ai/{kind}] {it.get('name')} 失敗: {e}")
+    print(f"[ai/{kind}] 生成 {n} 件")
+    return items
 
 
 if __name__ == "__main__":
