@@ -21,7 +21,7 @@ except ImportError:
     print("先に `pip install yfinance requests anthropic cryptography` を実行してください")
     sys.exit(1)
 
-from marketzawa_ai import fill_ai, fill_ai_groups, monthly_password, encrypt, current_ym
+from marketzawa_ai import fill_ai, fill_ai_groups, monthly_password, encrypt, current_ym, JST
 
 
 # ============================================================
@@ -442,7 +442,7 @@ def main():
         print("!! MARKETZAWA_MASTER_KEY 未設定：暗号化スキップ（有料解除は無効）")
 
     out = {
-        "updated": datetime.datetime.now().strftime("%Y/%m/%d %H:%M"),
+        "updated": datetime.datetime.now(JST).strftime("%Y/%m/%d %H:%M"),
         "index": zawatsuki_index(scores),
         "free": free,
         "paid_count": max(0, len(cards) - 3),
