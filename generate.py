@@ -62,6 +62,28 @@ RATES = {
 # ============================================================
 # 2. データ取得（過去1年）
 # ============================================================
+def _clean(closes, vols):
+    """NaN/None/0以下の終値を除去（対応する出来高も落とす）。欠損データ事故の防御。"""
+    import math
+    c2, v2 = [], []
+    for i, c in enumerate(closes):
+        try:
+            c = float(c)
+        except (TypeError, ValueError):
+            continue
+        if math.isnan(c) or math.isinf(c) or c <= 0:
+            continue
+        v = vols[i] if i < len(vols) else 0.0
+        try:
+            v = float(v)
+            if math.isnan(v) or math.isinf(v) or v < 0:
+                v = 0.0
+        except (TypeError, ValueError):
+            v = 0.0
+        c2.append(c); v2.append(v)
+    return c2, v2
+
+
 def get_stock(ticker):
     df = yf.download(ticker, period="1y", interval="1d", progress=False)
     if df.empty:
@@ -71,7 +93,7 @@ def get_stock(ticker):
         vols = [float(x) for x in df["Volume"].values.flatten()]
     else:
         vols = [0.0] * len(closes)
-    return closes, vols
+    return _clean(closes, vols)
 
 def get_crypto(symbol):
     url = "https://api.binance.com/api/v3/klines"
@@ -79,7 +101,7 @@ def get_crypto(symbol):
     data = requests.get(url, params=params, timeout=20).json()
     closes = [float(d[4]) for d in data]
     vols   = [float(d[5]) for d in data]
-    return closes, vols
+    return _clean(closes, vols)
 
 
 # ============================================================
@@ -328,8 +350,9 @@ def build_backdrop(raw, rate_latest):
         if p is not None: bits.append(f"{label} {p:+.1f}{unit}")
     add("S&P500", "S&P500"); add("ドル円", "ドル円")
     add("金", "ゴールド"); add("BTC", "ビットコイン"); add("原油", "原油 WTI")
-    if "10年" in rate_latest:
-        y = rate_latest["10年"]; bits.append(f"米10年 {y[-1]:.2f}%（{ (y[-1]-y[-2])*100:+.0f}bp）" if len(y) >= 2 else f"米10年 {y[-1]:.2f}%")
+    y = rate_latest.get("10年")
+    if y and len(y) >= 2:
+        bits.append(f"米10年 {y[-1]:.2f}%（{(y[-1]-y[-2])*100:+.0f}bp）")
     return " / ".join(bits)
 
 
@@ -337,7 +360,11 @@ def build_backdrop(raw, rate_latest):
 # 8. ざわつき指数
 # ============================================================
 def zawatsuki_index(scores):
-    return min(int(sum(scores) / 6 * 100), 100)
+    import math
+    clean = [s for s in scores if isinstance(s, (int, float)) and not math.isnan(s) and not math.isinf(s)]
+    if not clean:
+        return 0
+    return min(int(sum(clean) / 6 * 100), 100)
 
 
 # ============================================================
@@ -371,11 +398,14 @@ def main():
         except Exception as e:
             print(f"NG  {name}: {e}")
 
-    # 金利（backdrop用に生利回りも保持）
+    # 金利（backdrop用に生利回りも保持。取得失敗はスキップ）
     rate_latest = {}
     for name, ticker in RATES.items():
         try:
-            c, _ = get_stock(ticker); rate_latest[name] = _norm_yield(c)
+            c, _ = get_stock(ticker)
+            c = _norm_yield(c)
+            if c and len(c) >= 2:
+                rate_latest[name] = c
         except Exception as e:
             print(f"NG  [rate raw] {name}: {e}")
 
